@@ -1,0 +1,72 @@
+Sub datansiirto()
+    'Destworkbook sijainti ja sheetin nimi
+    Dim DestWorkbook As Workbook
+    Dim DestSheet As Worksheet
+    Set DestWorkbook = Workbooks.Open(" XD ") 'Destworkbookin sijainti
+    Set DestSheet = DestWorkbook.Worksheets(" XD ") 'sheetin nimi
+
+    'Alotus paikka
+    Dim DestCell As Range
+    Set DestCell = DestSheet.Range("B2") 'Replace with the cell where you want to paste the source data
+
+    'Filun nimi "asd,*"
+    Dim SourceFolder As String
+    Dim Filename As String
+    SourceFolder = " asd" 'sijainti
+    Filename = Dir(SourceFolder & "asd *.xlsx") ' source file
+    
+    ' Juoksevanumero > 1
+    Dim RunningNumber As Long
+    RunningNumber = 1
+
+    Do While Filename <> ""
+        'Extract the desired part of the filename without the extra parts
+        Dim FileNameParts() As String
+        FileNameParts = Split(Filename, ",")
+        
+        'Tarkistaa filun nimen, onko oikea
+        If UBound(FileNameParts) = 1 Then
+            'Open the source workbook and worksheet
+            Dim SourceWorkbook As Workbook
+            Dim SourceSheet As Worksheet
+            Set SourceWorkbook = Workbooks.Open(SourceFolder & Filename)
+            Set SourceSheet = SourceWorkbook.Worksheets("Sheet1") 'raporttien sheetin nimi, aina sama
+            
+            'Juokseva numerointi A riville ja hakee datan halutuista soluista
+            DestCell.Offset(0, 0).Value = RunningNumber 'Add running number to column A
+            DestCell.Offset(0, 0).Value = SourceSheet.Range("D7").Value 'datapaikat
+            DestCell.Offset(0, 1).Value = SourceSheet.Range("AB34").Value
+            DestCell.Offset(0, 2).Value = SourceSheet.Range("X34").Value
+            DestCell.Offset(0, 3).Value = SourceSheet.Range("Z34").Value
+            DestCell.Offset(0, 4).Value = SourceSheet.Range("V39").Value
+            DestCell.Offset(0, 5).Value = SourceSheet.Range("R39").Value
+            DestCell.Offset(0, 6).Value = SourceSheet.Range("T39").Value
+            DestCell.Offset(0, 7).Value = SourceSheet.Range("V51").Value
+            DestCell.Offset(0, 8).Value = SourceSheet.Range("R51").Value
+            DestCell.Offset(0, 9).Value = SourceSheet.Range("T39").Value
+            DestCell.Offset(0, 10).Value = SourceSheet.Range("AG8").Value
+            DestCell.Offset(0, 11).Value = SourceSheet.Range("AV8").Value 'datapaikat
+            
+            'Juoksevan numeroinnin lisäys
+            RunningNumber = RunningNumber + 1
+
+            'Destworkbookkiin hyperlinkki suoraan raporttiin
+            Dim HyperlinkAddress As String
+            HyperlinkAddress = SourceFolder & Filename ' Linkki raporttiin
+            DestSheet.Hyperlinks.Add DestCell.Offset(0, 12), HyperlinkAddress
+
+            'Sammuttaa raportin
+            SourceWorkbook.Close SaveChanges:=False
+
+            'Vaihtaa riviä destworkbookissa
+            Set DestCell = DestCell.Offset(1, 0)
+        End If
+        
+        'Siirtyy seuraavaan
+        Filename = Dir
+    Loop
+
+    'Boksi ilmotuksella, turha
+    'MsgBox "Päivitetty"
+End Sub
+
